@@ -1,0 +1,49 @@
+# ============================================================
+# GitHub Pages 自动部署工作流
+# 触发时机：push 到 main 分支，或手动触发（Actions 页 Run workflow）
+# 作用：将纯静态站点（index.html / style.css / app.js 等）
+#       自动发布到 GitHub Pages，无需任何手动设置。
+# ============================================================
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 赋予 Pages 部署所需的最小权限
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 同一时间只允许一个部署任务，避免并发冲突
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      # 1. 拉取仓库代码
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. 配置 Pages（自动检测发布源）
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      # 3. 把整个站点目录打包成部署产物
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      # 4. 发布到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
