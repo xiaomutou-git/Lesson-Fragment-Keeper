@@ -1498,9 +1498,12 @@ class LessonBoxApp {
         return;
       }
 
+      // 按 GitHub Flavored Markdown 规范组装：ATX 标题、连续引用块、
+      // 行内代码标签（空格分隔）、加粗字段名、分隔线前后留空行，全程不含表情符号
       const lines = [];
       lines.push('# 教案碎片素材导出');
       lines.push('');
+      // 连续 > 行在 GFM 中合并为同一个引用块
       lines.push(`> 导出时间：${this.formatDateTime(Date.now())}`);
       lines.push(`> 素材数量：${selected.length} 条`);
       lines.push('');
@@ -1514,7 +1517,10 @@ class LessonBoxApp {
         lines.push('');
         lines.push(f.content.trim());
         lines.push('');
-        lines.push(tagNames.length > 0 ? `标签：${tagNames.map((n) => `\`${n}\``).join('、')}` : '标签：无');
+        // GitHub 风格：加粗字段名，标签为多个独立行内代码，以空格分隔
+        lines.push(tagNames.length > 0
+          ? `**标签：** ${tagNames.map((n) => `\`${n}\``).join(' ')}`
+          : '**标签：** 无');
         lines.push('');
         lines.push('---');
         lines.push('');
